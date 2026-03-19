@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pulse Workspace</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="workspace-rail">
+        <div class="workspace-logo">P</div>
+        <button class="rail-item active">🏠</button>
+        <button class="rail-item">💬</button>
+        <button class="rail-item">📁</button>
+        <button class="rail-item">📊</button>
+      </aside>
+
+      <aside class="channel-sidebar">
+        <div class="sidebar-header">
+          <div>
+            <p class="workspace-name">Pulse Design Lab</p>
+            <p class="workspace-status">8명 온라인</p>
+          </div>
+          <button class="icon-button">+</button>
+        </div>
+
+        <section class="sidebar-group">
+          <p class="group-title">Channels</p>
+          <button class="channel-item active"># launch-room</button>
+          <button class="channel-item"># frontend</button>
+          <button class="channel-item"># design-crit</button>
+          <button class="channel-item"># daily-standup</button>
+          <button class="channel-item"># random</button>
+        </section>
+
+        <section class="sidebar-group">
+          <p class="group-title">Direct Messages</p>
+          <button class="channel-item dm"><span class="dot online"></span> Mina</button>
+          <button class="channel-item dm"><span class="dot online"></span> Daniel</button>
+          <button class="channel-item dm"><span class="dot away"></span> Sora</button>
+        </section>
+
+        <section class="focus-card">
+          <p class="focus-label">Today</p>
+          <strong>Landing page ship</strong>
+          <span>3 tasks left before review</span>
+          <div class="focus-progress">
+            <div class="focus-progress-bar"></div>
+          </div>
+        </section>
+      </aside>
+
+      <main class="main-panel">
+        <header class="channel-header">
+          <div>
+            <h1># launch-room</h1>
+            <p>Product launch discussion, blockers, and final assets</p>
+          </div>
+          <div class="header-actions">
+            <button class="header-chip">Huddle</button>
+            <button class="header-chip">Share</button>
+            <button class="header-chip accent">New Task</button>
+          </div>
+        </header>
+
+        <section class="hero-banner">
+          <div>
+            <p class="hero-kicker">Slack-Inspired Frontend Clone</p>
+            <h2>실시간 협업 툴의 정보 구조를 발표용 웹페이지로 재구성</h2>
+          </div>
+          <button class="banner-button" id="notify-button">알림 시뮬레이션</button>
+        </section>
+
+        <section class="content-grid">
+          <div class="chat-column">
+            <article class="message-card featured">
+              <div class="avatar coral">MJ</div>
+              <div class="message-body">
+                <div class="message-meta">
+                  <strong>Mina Jung</strong>
+                  <span>오후 6:42</span>
+                </div>
+                <p>
+                  발표용 클론코딩이라면 기능보다 화면 구조가 먼저 보여야 해요. 그래서
+                  Slack처럼 좌측 채널, 중앙 피드, 우측 디테일 패널 구조로 잡았어요.
+                </p>
+                <div class="message-tags">
+                  <span>layout</span>
+                  <span>ui-system</span>
+                  <span>presentation</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="message-card">
+              <div class="avatar mint">DK</div>
+              <div class="message-body">
+                <div class="message-meta">
+                  <strong>Daniel Kim</strong>
+                  <span>오후 6:47</span>
+                </div>
+                <p>
+                  메인 영역에는 채팅처럼 보이지만 사실상 카드형 콘텐츠를 섞어서 정보 밀도를
+                  높였어요. 이게 Slack 클론 발표할 때 설명하기 좋습니다.
+                </p>
+              </div>
+            </article>
+
+            <article class="message-card">
+              <div class="avatar violet">SR</div>
+              <div class="message-body">
+                <div class="message-meta">
+                  <strong>Sora Ryu</strong>
+                  <span>오후 6:51</span>
+                </div>
+                <p>
+                  오른쪽 패널에는 일정, 진행률, 파일 프리뷰를 넣고, 상단에는 채널 헤더와 액션을
+                  배치하면 완성도가 확 올라갑니다.
+                </p>
+              </div>
+            </article>
+
+            <article class="kanban-strip">
+              <div class="strip-header">
+                <strong>Launch Checklist</strong>
+                <span>오늘 저녁 발표 기준</span>
+              </div>
+              <div class="task-grid">
+                <div class="task-card urgent">
+                  <span>High</span>
+                  <strong>Hero section polish</strong>
+                  <p>타이포 정리, 버튼 대비 개선</p>
+                </div>
+                <div class="task-card">
+                  <span>Review</span>
+                  <strong>Sidebar interaction</strong>
+                  <p>채널 active 상태 강조</p>
+                </div>
+                <div class="task-card done">
+                  <span>Done</span>
+                  <strong>Color system</strong>
+                  <p>Slack 계열 톤 재해석 완료</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <aside class="detail-column">
+            <article class="detail-card">
+              <p class="card-label">Quick Stats</p>
+              <div class="stat-list">
+                <div>
+                  <span>Unread</span>
+                  <strong>24</strong>
+                </div>
+                <div>
+                  <span>Tasks</span>
+                  <strong>09</strong>
+                </div>
+                <div>
+                  <span>Uploads</span>
+                  <strong>13</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="detail-card">
+              <p class="card-label">Team Pulse</p>
+              <div class="pulse-chart">
+                <div class="bar bar-1"></div>
+                <div class="bar bar-2"></div>
+                <div class="bar bar-3"></div>
+                <div class="bar bar-4"></div>
+                <div class="bar bar-5"></div>
+                <div class="bar bar-6"></div>
+              </div>
+              <p class="detail-copy">이번 주 협업 활동이 지난주보다 18% 높습니다.</p>
+            </article>
+
+            <article class="detail-card">
+              <p class="card-label">Shared Files</p>
+              <div class="file-card">
+                <div class="file-preview"></div>
+                <div>
+                  <strong>launch-assets.fig</strong>
+                  <span>Updated 12 minutes ago</span>
+                </div>
+              </div>
+              <div class="file-card">
+                <div class="file-preview warm"></div>
+                <div>
+                  <strong>demo-script.md</strong>
+                  <span>Speaker notes ready</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="detail-card">
+              <p class="card-label">Why This Clone</p>
+              <ul class="pitch-points">
+                <li>좌측 네비게이션, 중앙 피드, 우측 패널 구조를 한 번에 연습할 수 있음</li>
+                <li>실무형 SaaS 분위기가 나서 발표 화면으로 설득력이 높음</li>
+                <li>카드, 채팅, 상태 뱃지, 그래프까지 프론트 기본기를 보여주기 좋음</li>
+              </ul>
+            </article>
+          </aside>
+        </section>
+
+        <section class="composer-panel">
+          <div class="composer-input">
+            <span>Message #launch-room</span>
+            <button class="send-button">Send</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast">Design review starts in 10 minutes.</div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
