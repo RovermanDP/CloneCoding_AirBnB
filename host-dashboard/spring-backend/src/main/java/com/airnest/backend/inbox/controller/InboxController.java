@@ -1,0 +1,76 @@
+package com.airnest.backend.inbox.controller;
+
+import com.airnest.backend.common.exception.InvalidRequestException;
+import com.airnest.backend.inbox.dto.InboxListResponse;
+import com.airnest.backend.inbox.dto.SendReplyRequest;
+import com.airnest.backend.inbox.dto.SendReplyResponse;
+import com.airnest.backend.inbox.service.InboxService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Tag(name = "Inbox", description = "Guest message and conversation management APIs")
+@SecurityRequirement(name = "bearerAuth")
+@RestController
+@RequestMapping("/api/inbox")
+public class InboxController {
+
+    private final InboxService inboxService;
+
+    public InboxController(InboxService inboxService) {
+        this.inboxService = inboxService;
+    }
+
+    @Operation(
+        summary = "List all inbox threads",
+        description = "Retrieve all guest conversation threads for the authenticated host"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Threads retrieved successfully"),
+        @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
+    @GetMapping
+    public InboxListResponse listThreads() {
+        return inboxService.listThreads();
+    }
+
+    @Operation(
+        summary = "Reply to a guest message",
+        description = "Send a reply message to a specific guest conversation thread"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Reply sent successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request"),
+        @ApiResponse(responseCode = "401", description = "Not authenticated"),
+        @ApiResponse(responseCode = "404", description = "Thread not found")
+    })
+    @PostMapping("/{id}/reply")
+    public SendReplyResponse sendReply(
+        @Parameter(description = "Thread ID", example = "1") @PathVariable("id") String id,
+        @Valid @RequestBody SendReplyRequest request
+    ) {
+        return new SendReplyResponse(inboxService.sendReply(parseId(id, "Invalid inbox thread id."), request.message()));
+    }
+
+    private Long parseId(String rawId, String errorMessage) {
+        try {
+            long numericId = Long.parseLong(rawId);
+            if (numericId <= 0) {
+                throw new InvalidRequestException(errorMessage);
+            }
+            return numericId;
+        } catch (NumberFormatException exception) {
+            throw new InvalidRequestException(errorMessage);
+        }
+    }
+}
