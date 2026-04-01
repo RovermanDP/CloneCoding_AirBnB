@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *   <li>로그인 엔드포인트: 분당 10회 (브루트포스 방어)
  *   <li>일반 API: 분당 100회
  * </ul>
+ *
+ * <p>{@code app.rate-limit.enabled=false} 로 비활성화 가능 (테스트/개발 환경용)
  */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -39,6 +42,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final Map<String, Bucket> loginBuckets = new ConcurrentHashMap<>();
     private final Map<String, Bucket> apiBuckets = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
+
+    @Value("${app.rate-limit.enabled:true}")
+    private boolean rateLimitEnabled;
 
     public RateLimitFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -63,6 +69,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
             log.warn("Rate limit exceeded: ip={} path={}", ip, path);
             writeRateLimitResponse(response, request);
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !rateLimitEnabled;
     }
 
     private boolean isLoginEndpoint(String path) {
