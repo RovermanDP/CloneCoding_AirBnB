@@ -4,6 +4,7 @@ import com.airnest.backend.auth.config.JwtProperties;
 import com.airnest.backend.auth.security.JwtAuthenticationFilter;
 import com.airnest.backend.auth.security.RestAccessDeniedHandler;
 import com.airnest.backend.auth.security.RestAuthenticationEntryPoint;
+import com.airnest.backend.common.ratelimit.RateLimitFilter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
         HttpSecurity http,
         JwtAuthenticationFilter jwtAuthenticationFilter,
+        RateLimitFilter rateLimitFilter,
         RestAuthenticationEntryPoint restAuthenticationEntryPoint,
         RestAccessDeniedHandler restAccessDeniedHandler
     ) throws Exception {
@@ -52,6 +54,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/health").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/auth/me").authenticated()
@@ -60,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/listings/**").hasRole("HOST")
                 .anyRequest().denyAll()
             )
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -6,6 +6,9 @@ import com.airnest.backend.inbox.dto.InboxThreadResponse;
 import com.airnest.backend.inbox.entity.InboxThread;
 import com.airnest.backend.inbox.repository.InboxThreadRepository;
 import java.time.Instant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +22,19 @@ public class InboxService {
     }
 
     @Transactional(readOnly = true)
-    public InboxListResponse listThreads() {
+    public InboxListResponse listThreads(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(
+            Sort.Order.desc("updatedAt"),
+            Sort.Order.desc("id")
+        ));
+        Page<InboxThread> result = inboxThreadRepository.findAll(pageable);
         return new InboxListResponse(
-            inboxThreadRepository.findAllByOrderByUpdatedAtDescIdDesc().stream()
-                .map(InboxThreadResponse::from)
-                .toList()
+            result.getContent().stream().map(InboxThreadResponse::from).toList(),
+            result.getNumber(),
+            result.getSize(),
+            result.getTotalElements(),
+            result.getTotalPages(),
+            result.isLast()
         );
     }
 

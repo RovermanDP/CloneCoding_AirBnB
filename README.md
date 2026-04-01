@@ -1,20 +1,123 @@
-# Pulse Workspace
+# Airnest Host Dashboard
 
-Slack 스타일을 참고해서 만든 발표용 프론트엔드 클론 페이지입니다.
+Next.js host dashboard frontend backed by a Spring Boot API.
 
-## 파일
+## Stack
 
-- `index.html`
-- `styles.css`
-- `script.js`
+- Frontend: Next.js App Router
+- Backend: Spring Boot, Spring Web, Spring Data JPA, Spring Security
+- Database: PostgreSQL
+- Migrations: Flyway
+- Auth scaffold: JWT access token flow
 
-## 실행
+## Frontend
 
-`C:\CloneCoding\index.html` 파일을 브라우저에서 바로 열면 됩니다.
+Create `C:\CloneCoding\host-dashboard\.env.local`:
 
-## 발표 포인트
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+```
 
-1. 좌측은 워크스페이스/채널 구조
-2. 중앙은 협업 피드와 태스크 카드
-3. 우측은 통계, 파일, 설명 패널
-4. 상단 `알림 시뮬레이션` 버튼으로 간단한 인터랙션 시연 가능
+The frontend API helper lives in `lib/api.ts` and the main screen is `app/page.tsx`.
+
+## Backend profiles
+
+The Spring backend now uses profile-specific configuration:
+
+- `local`: local PostgreSQL defaults, seed enabled, local JWT secret default
+- `dev`: environment-driven database and JWT config, seed optional
+- `prod`: environment-driven database and JWT config, seed disabled
+
+Default profile is `local`.
+
+Key config files:
+
+- `spring-backend/src/main/resources/application.yml`
+- `spring-backend/src/main/resources/application-local.yml`
+- `spring-backend/src/main/resources/application-dev.yml`
+- `spring-backend/src/main/resources/application-prod.yml`
+
+## Database
+
+Local defaults:
+
+```text
+host=localhost
+port=5432
+database=airnest
+username=airnest_user
+password=airnest_pass
+```
+
+Flyway migration scripts live under `spring-backend/src/main/resources/db/migration`.
+
+## Local auth seed
+
+When `local` profile runs with seed enabled, the backend creates a default host account if it does not already exist.
+
+```text
+email=host@airnest.local
+password=host1234!
+role=HOST
+```
+
+Override with:
+
+- `APP_SEED_HOST_EMAIL`
+- `APP_SEED_HOST_PASSWORD`
+- `APP_SEED_HOST_DISPLAY_NAME`
+- `APP_JWT_SECRET`
+
+## Run
+
+Start the backend:
+
+```bash
+cd C:\CloneCoding\host-dashboard
+npm run dev:backend
+```
+
+Start the frontend in a separate terminal:
+
+```bash
+cd C:\CloneCoding\host-dashboard
+npm run dev
+```
+
+Open:
+
+- Frontend: http://localhost:3000
+- Backend health: http://localhost:8080/health
+
+## Verify
+
+Run backend tests:
+
+```bash
+npm run test:backend:spring
+```
+
+Manual API checks:
+
+- `GET /health`
+- `GET /api/inbox`
+- `GET /api/reservations`
+- `GET /api/listings`
+- `POST /api/auth/login`
+- `GET /api/auth/me` with `Authorization: Bearer <token>`
+
+Example login payload:
+
+```json
+{
+  "email": "host@airnest.local",
+  "password": "host1234!"
+}
+```
+
+## Notes
+
+- Existing dashboard APIs remain open for now so the current frontend flow is not broken.
+- JWT login and token validation are in place for staged auth rollout.
+- Flyway is configured with `baseline-on-migrate` to transition existing local schemas without dropping data.
+- The current reservation/listing/inbox entities still reflect frontend-oriented fields. Converting them to richer domain models should be a later refactor.

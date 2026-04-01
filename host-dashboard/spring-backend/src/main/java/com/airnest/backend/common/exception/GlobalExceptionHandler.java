@@ -2,8 +2,11 @@ package com.airnest.backend.common.exception;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +15,8 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     private final ApiErrorResponseFactory apiErrorResponseFactory;
 
@@ -24,6 +29,7 @@ public class GlobalExceptionHandler {
         ResourceNotFoundException exception,
         ServletWebRequest request
     ) {
+        log.info("Resource not found: {}", exception.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, "resource_not_found", exception.getMessage(), request);
     }
 
@@ -32,6 +38,7 @@ public class GlobalExceptionHandler {
         InvalidRequestException exception,
         ServletWebRequest request
     ) {
+        log.info("Invalid request: {}", exception.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, "invalid_request", exception.getMessage(), request);
     }
 
@@ -40,7 +47,17 @@ public class GlobalExceptionHandler {
         UnauthorizedException exception,
         ServletWebRequest request
     ) {
+        log.info("Unauthorized: {}", exception.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, "unauthorized", exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnreadableBody(
+        HttpMessageNotReadableException exception,
+        ServletWebRequest request
+    ) {
+        log.info("Malformed request body: {}", exception.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "invalid_request", "Request body is missing or malformed.", request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -57,6 +74,7 @@ public class GlobalExceptionHandler {
         }
 
         String message = details.isEmpty() ? "Request payload is invalid." : "Request payload validation failed.";
+        log.info("Validation failed: {}", details);
         ApiErrorResponse payload = apiErrorResponseFactory.create(
             HttpStatus.BAD_REQUEST,
             "VALIDATION_ERROR",
@@ -72,6 +90,7 @@ public class GlobalExceptionHandler {
         Exception exception,
         ServletWebRequest request
     ) {
+        log.error("Unexpected error: path={}", request.getRequest().getRequestURI(), exception);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "internal_server_error", "Unexpected server error.", request);
     }
 

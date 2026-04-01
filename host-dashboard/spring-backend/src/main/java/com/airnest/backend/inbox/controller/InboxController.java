@@ -12,15 +12,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Inbox", description = "Guest message and conversation management APIs")
 @SecurityRequirement(name = "bearerAuth")
+@Validated
 @RestController
 @RequestMapping("/api/inbox")
 public class InboxController {
@@ -40,8 +45,13 @@ public class InboxController {
         @ApiResponse(responseCode = "401", description = "Not authenticated")
     })
     @GetMapping
-    public InboxListResponse listThreads() {
-        return inboxService.listThreads();
+    public InboxListResponse listThreads(
+        @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
+        @RequestParam(defaultValue = "0") @Min(0) int page,
+        @Parameter(description = "페이지 크기 (최대 100)", example = "20")
+        @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size
+    ) {
+        return inboxService.listThreads(page, size);
     }
 
     @Operation(

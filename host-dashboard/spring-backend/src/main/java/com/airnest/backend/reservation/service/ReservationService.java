@@ -8,6 +8,9 @@ import com.airnest.backend.reservation.entity.Reservation;
 import com.airnest.backend.reservation.entity.ReservationStatus;
 import com.airnest.backend.reservation.repository.ReservationRepository;
 import java.time.Instant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +24,19 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public ReservationListResponse listReservations() {
+    public ReservationListResponse listReservations(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(
+            Sort.Order.asc("updatedAt"),
+            Sort.Order.asc("id")
+        ));
+        Page<Reservation> result = reservationRepository.findAll(pageable);
         return new ReservationListResponse(
-            reservationRepository.findAllByOrderByUpdatedAtAscIdAsc().stream()
-                .map(ReservationResponse::from)
-                .toList()
+            result.getContent().stream().map(ReservationResponse::from).toList(),
+            result.getNumber(),
+            result.getSize(),
+            result.getTotalElements(),
+            result.getTotalPages(),
+            result.isLast()
         );
     }
 

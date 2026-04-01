@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  backend:
+    name: Backend (Spring Boot)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: host-dashboard/spring-backend
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: airnest
+          POSTGRES_USER: airnest_user
+          POSTGRES_PASSWORD: airnest_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # application-local.yml이 DB_HOST/DB_PORT/DB_NAME을 별도로 사용함
+      DB_NAME: airnest
+      DB_USERNAME: airnest_user
+      DB_PASSWORD: airnest_pass
+      APP_JWT_SECRET: Y2ktdGVzdC1zZWNyZXQta2V5LWZvci1naXRodWItYWN0aW9ucy0yMDI2
+      APP_JWT_ISSUER: airnest-ci
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and test
+        run: mvn -B verify
+
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report
+          path: host-dashboard/spring-backend/target/surefire-reports/
+
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: host-dashboard
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: host-dashboard/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
