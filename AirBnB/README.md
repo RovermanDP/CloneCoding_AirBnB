@@ -12,7 +12,7 @@ Next.js host dashboard frontend backed by a Spring Boot API.
 
 ## Frontend
 
-Create `C:\CloneCoding\host-dashboard\.env.local`:
+Create `C:\CloneCoding\AirBnB\host-dashboard\.env.local`:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
@@ -73,14 +73,14 @@ Override with:
 Start the backend:
 
 ```bash
-cd C:\CloneCoding\host-dashboard
+cd C:\CloneCoding\AirBnB\host-dashboard
 npm run dev:backend
 ```
 
 Start the frontend in a separate terminal:
 
 ```bash
-cd C:\CloneCoding\host-dashboard
+cd C:\CloneCoding\AirBnB\host-dashboard
 npm run dev
 ```
 
