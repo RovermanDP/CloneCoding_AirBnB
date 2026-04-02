@@ -105,7 +105,7 @@ jobs:
   security-scan:
     name: Security Scan (OWASP)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 360
     # main 머지 시에만 실행 (PR마다 돌리면 느림)
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     defaults:
@@ -122,6 +122,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
+      - name: Cache NVD database
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: nvd-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: nvd-${{ runner.os }}-
 
       - name: Run OWASP Dependency Check
         run: mvn -B verify -Psecurity-scan -DskipTests
