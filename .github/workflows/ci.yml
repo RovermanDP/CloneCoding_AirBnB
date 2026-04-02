@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: host-dashboard/spring-backend
+        working-directory: AirBnB/host-dashboard/spring-backend
 
     services:
       postgres:
@@ -65,14 +65,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: host-dashboard/spring-backend/target/site/jacoco/
+          path: AirBnB/host-dashboard/spring-backend/target/site/jacoco/
 
       - name: Upload test report on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-report
-          path: host-dashboard/spring-backend/target/surefire-reports/
+          path: AirBnB/host-dashboard/spring-backend/target/surefire-reports/
 
   frontend:
     name: Frontend (Next.js)
@@ -80,7 +80,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: host-dashboard
+        working-directory: AirBnB/host-dashboard
 
     steps:
       - name: Checkout
@@ -91,7 +91,7 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: host-dashboard/package-lock.json
+          cache-dependency-path: AirBnB/host-dashboard/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -110,7 +110,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     defaults:
       run:
-        working-directory: host-dashboard/spring-backend
+        working-directory: AirBnB/host-dashboard/spring-backend
 
     steps:
       - name: Checkout
@@ -138,4 +138,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: owasp-report
-          path: host-dashboard/spring-backend/target/dependency-check-report.html
+          path: AirBnB/host-dashboard/spring-backend/target/dependency-check-report.html
