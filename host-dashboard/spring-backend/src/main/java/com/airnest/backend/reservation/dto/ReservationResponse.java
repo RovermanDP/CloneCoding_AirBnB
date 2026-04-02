@@ -1,14 +1,16 @@
 package com.airnest.backend.reservation.dto;
 
 import com.airnest.backend.reservation.entity.Reservation;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 public record ReservationResponse(
     Long id,
     String guest,
     String property,
-    String arrival,
-    String payout,
+    LocalDate arrivalDate,
+    BigDecimal payoutAmount,
     String status,
     Instant updatedAt
 ) {
@@ -17,8 +19,8 @@ public record ReservationResponse(
             reservation.getId(),
             reservation.getGuest(),
             reservation.getProperty(),
-            reservation.getArrival(),
-            reservation.getPayout(),
+            reservation.getArrivalDate(),
+            reservation.getPayoutAmount(),
             reservation.getStatus().getValue(),
             reservation.getUpdatedAt()
         );

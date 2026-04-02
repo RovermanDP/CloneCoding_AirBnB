@@ -1,5 +1,6 @@
 package com.airnest.backend.listing.entity;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -20,8 +21,8 @@ public class Listing {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String price;
+    @Column(name = "price_amount", nullable = false, precision = 12, scale = 2)
+    private BigDecimal priceAmount;
 
     @Column(nullable = false)
     private String location;
@@ -36,9 +37,9 @@ public class Listing {
     protected Listing() {
     }
 
-    private Listing(String name, String price, String location, ListingStatus status, Instant updatedAt) {
+    private Listing(String name, BigDecimal priceAmount, String location, ListingStatus status, Instant updatedAt) {
         this.name = name;
-        this.price = price;
+        this.priceAmount = priceAmount;
         this.location = location;
         this.status = status;
         this.updatedAt = updatedAt;
@@ -46,12 +47,12 @@ public class Listing {
 
     public static Listing create(
         String name,
-        String price,
+        BigDecimal priceAmount,
         String location,
         ListingStatus status,
         Instant updatedAt
     ) {
-        return new Listing(name, price, location, status, updatedAt);
+        return new Listing(name, priceAmount, location, status, updatedAt);
     }
 
     public void updateStatus(ListingStatus nextStatus, Instant updatedAt) {
@@ -59,27 +60,10 @@ public class Listing {
         this.updatedAt = updatedAt;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPrice() {
-        return price;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public ListingStatus getStatus() {
-        return status;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public BigDecimal getPriceAmount() { return priceAmount; }
+    public String getLocation() { return location; }
+    public ListingStatus getStatus() { return status; }
+    public Instant getUpdatedAt() { return updatedAt; }
 }

@@ -10,7 +10,9 @@ import com.airnest.backend.auth.dto.LoginResponse;
 import com.airnest.backend.auth.entity.AppUser;
 import com.airnest.backend.auth.entity.UserRole;
 import com.airnest.backend.auth.repository.AppUserRepository;
+import com.airnest.backend.auth.repository.RefreshTokenRepository;
 import com.airnest.backend.auth.security.JwtTokenProvider;
+import com.airnest.backend.auth.security.TokenBlacklist;
 import com.airnest.backend.auth.security.TokenBundle;
 import com.airnest.backend.common.exception.UnauthorizedException;
 import java.time.Instant;
@@ -30,10 +32,16 @@ class AuthServiceTest {
     private AppUserRepository appUserRepository;
 
     @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
     private JwtTokenProvider jwtTokenProvider;
+
+    @Mock
+    private TokenBlacklist tokenBlacklist;
 
     @InjectMocks
     private AuthService authService;
@@ -53,7 +61,10 @@ class AuthServiceTest {
 
         when(appUserRepository.findByEmailIgnoreCase("host@airnest.local")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("host1234!", "encoded-password")).thenReturn(true);
-        when(jwtTokenProvider.issueToken(any(AppUser.class))).thenReturn(new TokenBundle("token-value", Instant.parse("2026-03-26T10:00:00Z")));
+        when(jwtTokenProvider.issueToken(any(AppUser.class))).thenReturn(new TokenBundle(
+            "token-value", Instant.parse("2026-03-26T10:00:00Z"),
+            "refresh-token", "refreshhash", Instant.parse("2026-04-02T10:00:00Z")
+        ));
 
         LoginResponse response = authService.login(new LoginRequest("host@airnest.local", "host1234!"));
 

@@ -6,10 +6,16 @@ on:
   pull_request:
     branches: [main, develop]
 
+# 같은 브랜치에 새 커밋이 오면 이전 실행을 취소
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
     name: Backend (Spring Boot)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: host-dashboard/spring-backend
@@ -30,11 +36,10 @@ jobs:
           --health-retries 5
 
     env:
-      # application-local.yml이 DB_HOST/DB_PORT/DB_NAME을 별도로 사용함
       DB_NAME: airnest
       DB_USERNAME: airnest_user
       DB_PASSWORD: airnest_pass
-      APP_JWT_SECRET: Y2ktdGVzdC1zZWNyZXQta2V5LWZvci1naXRodWItYWN0aW9ucy0yMDI2
+      APP_JWT_SECRET: ${{ secrets.APP_JWT_SECRET }}
       APP_JWT_ISSUER: airnest-ci
       CORS_ALLOWED_ORIGINS: http://localhost:3000
 
@@ -52,19 +57,27 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and test
+      - name: Build, test, and check coverage
         run: mvn -B verify
 
-      - name: Upload test report
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: host-dashboard/spring-backend/target/site/jacoco/
+
+      - name: Upload test report on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: backend-test-report
+          name: surefire-report
           path: host-dashboard/spring-backend/target/surefire-reports/
 
   frontend:
     name: Frontend (Next.js)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: host-dashboard
@@ -88,3 +101,34 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  security-scan:
+    name: Security Scan (OWASP)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # main 머지 시에만 실행 (PR마다 돌리면 느림)
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: host-dashboard/spring-backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run OWASP Dependency Check
+        run: mvn -B verify -Psecurity-scan -DskipTests
+
+      - name: Upload security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-report
+          path: host-dashboard/spring-backend/target/dependency-check-report.html

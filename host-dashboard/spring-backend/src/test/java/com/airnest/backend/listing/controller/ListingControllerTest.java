@@ -38,7 +38,7 @@ class ListingControllerTest {
     @Test
     void updateStatusReturnsUpdatedListing() throws Exception {
         when(listingService.updateStatus(eq(1L), eq("Published"))).thenReturn(
-            new ListingResponse(1L, "Room near city centre", "KRW 179,000", "Seoul", "Published", Instant.parse("2026-03-26T10:00:00Z"))
+            new ListingResponse(1L, "Room near city centre", new java.math.BigDecimal("179000"), "Seoul", "Published", Instant.parse("2026-03-26T10:00:00Z"))
         );
 
         mockMvc.perform(patch("/api/listings/1/status")

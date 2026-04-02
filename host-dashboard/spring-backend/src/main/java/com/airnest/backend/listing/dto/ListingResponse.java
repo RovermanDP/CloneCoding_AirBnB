@@ -1,12 +1,13 @@
 package com.airnest.backend.listing.dto;
 
 import com.airnest.backend.listing.entity.Listing;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public record ListingResponse(
     Long id,
     String name,
-    String price,
+    BigDecimal priceAmount,
     String location,
     String status,
     Instant updatedAt
@@ -15,7 +16,7 @@ public record ListingResponse(
         return new ListingResponse(
             listing.getId(),
             listing.getName(),
-            listing.getPrice(),
+            listing.getPriceAmount(),
             listing.getLocation(),
             listing.getStatus().getValue(),
             listing.getUpdatedAt()

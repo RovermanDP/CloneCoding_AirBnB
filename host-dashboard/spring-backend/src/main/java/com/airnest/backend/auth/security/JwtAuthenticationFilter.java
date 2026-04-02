@@ -18,13 +18,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenBlacklist tokenBlacklist;
     private final AuthenticationEntryPoint authenticationEntryPoint;
 
     public JwtAuthenticationFilter(
         JwtTokenProvider jwtTokenProvider,
+        TokenBlacklist tokenBlacklist,
         AuthenticationEntryPoint authenticationEntryPoint
     ) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenBlacklist = tokenBlacklist;
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
@@ -42,7 +45,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            AuthenticatedUserPrincipal principal = jwtTokenProvider.parse(authorizationHeader.substring(7).trim());
+            String token = authorizationHeader.substring(7).trim();
+
+            if (tokenBlacklist.isBlacklisted(token)) {
+                throw new UnauthorizedException("Token has been invalidated.");
+            }
+
+            AuthenticatedUserPrincipal principal = jwtTokenProvider.parse(token);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 principal,
                 null,

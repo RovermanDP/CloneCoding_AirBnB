@@ -4,6 +4,9 @@ import java.time.Instant;
 
 public record TokenBundle(
     String accessToken,
-    Instant expiresAt
+    Instant expiresAt,
+    String refreshToken,
+    String refreshTokenHash,
+    Instant refreshExpiresAt
 ) {
 }

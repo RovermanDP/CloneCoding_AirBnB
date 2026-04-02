@@ -15,6 +15,9 @@ import jakarta.persistence.Table;
 @Table(name = "app_users")
 public class AppUser {
 
+    private static final int MAX_LOGIN_ATTEMPTS = 5;
+    private static final int LOCK_DURATION_MINUTES = 15;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,6 +37,12 @@ public class AppUser {
 
     @Column(nullable = false)
     private boolean active;
+
+    @Column(name = "login_attempts", nullable = false)
+    private int loginAttempts = 0;
+
+    @Column(name = "locked_until")
+    private Instant lockedUntil;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -74,39 +83,36 @@ public class AppUser {
         return new AppUser(email, passwordHash, displayName, role, active, createdAt, updatedAt);
     }
 
+    public boolean isLocked(Instant now) {
+        return lockedUntil != null && lockedUntil.isAfter(now);
+    }
+
+    public void recordFailedLogin(Instant now) {
+        this.loginAttempts++;
+        if (this.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+            this.lockedUntil = now.plusSeconds(LOCK_DURATION_MINUTES * 60L);
+        }
+        this.updatedAt = now;
+    }
+
+    public void resetLoginAttempts(Instant now) {
+        this.loginAttempts = 0;
+        this.lockedUntil = null;
+        this.updatedAt = now;
+    }
+
     private static String normalizeEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+    public Long getId() { return id; }
+    public String getEmail() { return email; }
+    public String getPasswordHash() { return passwordHash; }
+    public String getDisplayName() { return displayName; }
+    public UserRole getRole() { return role; }
+    public boolean isActive() { return active; }
+    public int getLoginAttempts() { return loginAttempts; }
+    public Instant getLockedUntil() { return lockedUntil; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
 }

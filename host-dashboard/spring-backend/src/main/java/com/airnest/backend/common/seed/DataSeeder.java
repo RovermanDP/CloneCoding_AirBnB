@@ -13,7 +13,9 @@ import com.airnest.backend.listing.repository.ListingRepository;
 import com.airnest.backend.reservation.entity.Reservation;
 import com.airnest.backend.reservation.entity.ReservationStatus;
 import com.airnest.backend.reservation.repository.ReservationRepository;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -132,28 +134,29 @@ public class DataSeeder implements ApplicationRunner {
             return;
         }
 
+        LocalDate today = LocalDate.now();
         reservationRepository.saveAll(List.of(
             Reservation.create(
                 "Olivia",
                 "Room near city centre",
-                "Today / 15:00",
-                "KRW 1.27M",
+                today,
+                new BigDecimal("1270000"),
                 ReservationStatus.PREPARING,
                 Instant.parse("2026-03-25T06:10:00Z")
             ),
             Reservation.create(
                 "Daniel",
                 "Seongsu Loft Residence",
-                "Tomorrow / 17:00",
-                "KRW 4.92M",
+                today.plusDays(1),
+                new BigDecimal("4920000"),
                 ReservationStatus.READY,
                 Instant.parse("2026-03-25T06:20:00Z")
             ),
             Reservation.create(
                 "Sophia",
                 "Yeonnam Garden Stay",
-                "Sep 15 / 16:00",
-                "KRW 3.48M",
+                LocalDate.of(2026, 9, 15),
+                new BigDecimal("3480000"),
                 ReservationStatus.CHECKED_IN,
                 Instant.parse("2026-03-25T06:30:00Z")
             )
@@ -168,21 +171,21 @@ public class DataSeeder implements ApplicationRunner {
         listingRepository.saveAll(List.of(
             Listing.create(
                 "Room near city centre",
-                "KRW 179,000",
+                new BigDecimal("179000"),
                 "Seoul",
                 ListingStatus.PUBLISHED,
                 Instant.parse("2026-03-25T05:30:00Z")
             ),
             Listing.create(
                 "Seongsu Loft Residence",
-                "KRW 212,000",
+                new BigDecimal("212000"),
                 "Seoul",
                 ListingStatus.PUBLISHED,
                 Instant.parse("2026-03-25T05:40:00Z")
             ),
             Listing.create(
                 "Yeonnam Garden Stay",
-                "KRW 198,000",
+                new BigDecimal("198000"),
                 "Seoul",
                 ListingStatus.DRAFT,
                 Instant.parse("2026-03-25T05:50:00Z")

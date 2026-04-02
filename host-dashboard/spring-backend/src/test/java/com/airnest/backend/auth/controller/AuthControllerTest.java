@@ -43,6 +43,8 @@ class AuthControllerTest {
                 "token-value",
                 "Bearer",
                 Instant.parse("2026-03-26T10:00:00Z"),
+                "refresh-token-value",
+                Instant.parse("2026-04-02T10:00:00Z"),
                 new AuthenticatedUserResponse(1L, "host@airnest.local", "Emiel Jacobs", "HOST")
             )
         );
